@@ -11,10 +11,8 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
-
-# Example schemas (replace with your own):
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional, List
 
 class User(BaseModel):
     """
@@ -22,11 +20,21 @@ class User(BaseModel):
     Collection name: "user" (lowercase of class name)
     """
     name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
+    email: EmailStr = Field(..., description="Email address")
+    password_hash: str = Field(..., description="Hashed password with salt")
+    field_of_study: Optional[str] = Field(None, description="Primary data science focus")
+    interests: List[str] = Field(default_factory=list, description="Topics of interest")
     is_active: bool = Field(True, description="Whether user is active")
 
+class Session(BaseModel):
+    """
+    Session tokens for authenticated users
+    Collection name: "session"
+    """
+    user_id: str = Field(..., description="User document ID as string")
+    token: str = Field(..., description="Session token")
+
+# Example schema kept for reference
 class Product(BaseModel):
     """
     Products collection schema
@@ -38,11 +46,3 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
